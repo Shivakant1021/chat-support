@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourierBot - Shivakant Couriers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 400px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        .user, .bot, .loader {
+            padding: 10px;
+            margin: 5px 0;
+            line-height: 22px;
+            border-radius: 8px;
+        }
+        .user {
+            background: #e1ffc7;
+            text-align: right;
+        }
+        .bot {
+            background: #f1f1f1;
+            text-align: left;
+        }
+        .loader {
+            font-style: italic;
+            opacity: 0.7;
+            background: #fff3cd;
+        }
+        .input-box {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+        .input-box input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+        .input-box button {
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .input-box button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">📦 CourierBot - Global India Express</div>
+    <div id="chat-box" class="chat-box">
+        <div class="bot">🤖 CourierBot: Hello! 👋 I’m here to help with courier services. How can I assist you today?</div>
+    </div>
+    <div class="input-box">
+        <input type="text" id="user-input" placeholder="Type your message..." onkeypress="if(event.key === 'Enter') sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+async function sendMessage() {
+    const inputField = document.getElementById("user-input");
+    const chatBox = document.getElementById("chat-box");
+    const userMessage = inputField.value.trim();
+
+    if (!userMessage) return;
+
+    // Show user message
+    chatBox.innerHTML += `<div class="user">👤 You: ${userMessage}</div>`;
+
+    // ✅ Add loader while waiting for AI response
+    let loader = document.createElement("div");
+    loader.className = "loader";
+    loader.innerHTML = "🤖 CourierBot is typing...";
+    chatBox.appendChild(loader);
+
+    // Scroll chat to bottom
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Send message to backend
+    let response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage })
+    });
+
+    let data = await response.json();
+
+    // Remove loader
+    chatBox.removeChild(loader);
+
+    // Show bot response
+    chatBox.innerHTML += `<div class="bot">🤖 CourierBot: ${data.reply}</div>`;
+
+    inputField.value = "";
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+</script>
+
+</body>
+</html>
